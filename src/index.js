@@ -2,7 +2,13 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
-function Square(props) {
+// TODO: style board and refactor so components are in their own file
+
+function Square(props) { 
+    /* 
+    simple functional component that has no state, it takes in the props value of 
+    what square # it is and an onclick function, both are defined in the board component 
+    */
     return (
         <button className="square" onClick={props.onClick}>
             {props.value}
@@ -21,6 +27,7 @@ class Board extends React.Component {
     }
 
     render() {
+        {/* Board is rendered here and the css class "board-row" ensures its a 3x3 grid */}
         return (
             <div>
                 <div className="board-row">
@@ -47,26 +54,33 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [
+            history: [ // history is an array of objects where each object is an array 0-8 of the state of the board
                 {
-                    squares: Array(9).fill(null)
+                    squares: Array(9).fill(null) // initializing blank square array to start
                 }
             ],
             stepNumber: 0,
-            xIsNext: true
+            xIsNext: true // x has the first move
         };
     }
 
     handleClick(i) {
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
+        const squares = current.squares.slice(); 
+        /* 
+        slice creates a shallow copy of the array, shallow meaning that it points to the 
+        same memory addresses as the original array so if thats lost, both are lost
+
+        slice needs a param and if you call it like this itll actually pass undefined 
+        which gets translated to 0 so its the same as calling slice(0)
+        */
+        if (calculateWinner(squares) || squares[i]) { // if calculate winner method comes back true or ???
             return;
         }
         squares[i] = this.state.xIsNext ? "X" : "O";
         this.setState({
-            history: history.concat([
+            history: history.concat([ // merge two arrays
                 {
                     squares: squares
                 }
@@ -79,12 +93,16 @@ class Game extends React.Component {
     jumpTo(step) {
         this.setState({
             stepNumber: step,
-            xIsNext: (step % 2) === 0
+            xIsNext: (step % 2) === 0 // if remainder is 0 x is next otherwise y is next
         });
     }
 
     render() {
-        const history = this.state.history;
+        const history = this.state.history; 
+        /* 
+        history variable is in multiple places because in these places it instantiates itself off 
+        the state history. the state of history may be different in handleClick and here 
+        */
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
@@ -92,8 +110,9 @@ class Game extends React.Component {
             const desc = move ?
                 'Go to move #' + move :
                 'Go to game start';
+                    // key is a unique identifier for that component so react can differentiate between components
 			return (
-				<li key={move}>
+				<li key={move}> 
 					<button onClick={() => this.jumpTo(move)}>{desc}</button>
 				</li>
 			);
